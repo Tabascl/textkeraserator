@@ -1,5 +1,5 @@
-import json
 import itertools
+import json
 from multiprocessing import Pool
 from urllib.error import HTTPError
 from urllib.request import urlopen
@@ -53,18 +53,24 @@ def _get_posts(board, thread):
     return posts
 
 
-boards = _get_boards()
-threads = _get_threads(boards)
+def fetch_posts():
+    boards = _get_boards()
+    threads = _get_threads(boards[:8])
 
-with Pool(8) as p:
-    posts = p.starmap(_get_posts, threads)
+    with Pool(8) as p:
+        posts = p.starmap(_get_posts, threads)
 
-posts = itertools.chain.from_iterable(posts)
+    posts = list(itertools.chain.from_iterable(posts))
 
-print("Successfully fetched {0} posts. Saving to file...".format(len(posts)))
+    print(
+        "Successfully fetched {0} posts. Saving to file...".format(len(posts)))
 
-with open("raw_posts.txt", "w") as f:
-    for post in posts:
-        f.write(post + '\n')
+    with open("raw_posts.txt", "w") as f:
+        for post in posts:
+            f.write(post + '\n')
 
-print("Done!")
+    print("Done!")
+
+
+if __name__ == '__main__':
+    fetch_posts()
