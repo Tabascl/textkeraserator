@@ -1,4 +1,7 @@
+import warnings
 from bs4 import BeautifulSoup
+
+warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
 def clean_text(filename):
     text = open(filename, 'r').read()
