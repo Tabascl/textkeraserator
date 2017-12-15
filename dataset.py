@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-SKIP = 2
+SKIP = 3
 
 class DataSet():
     def __init__(self, text):
