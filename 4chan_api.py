@@ -55,7 +55,11 @@ def _get_posts(board, thread):
 
 def fetch_posts():
     boards = _get_boards()
+    print("There are {0} boards".format(len(boards)))
     threads = _get_threads(boards)
+    print("with a total of {0} threads".format(len(threads)))
+
+    print("Fetching posts...")
 
     with Pool(8) as p:
         posts = p.starmap(_get_posts, threads)
