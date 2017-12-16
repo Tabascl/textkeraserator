@@ -4,6 +4,12 @@ from multiprocessing import Pool
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
+try:
+    import win_unicode_console
+    win_unicode_console.enable()
+except ImportError:
+    print("Not on windows, skipping...")
+
 boards_url = "https://a.4cdn.org/boards.json"
 threads_url = "https://a.4cdn.org/{0}/threads.json"
 posts_url = "https://a.4cdn.org/{0}/thread/{1}.json"
@@ -11,7 +17,7 @@ posts_url = "https://a.4cdn.org/{0}/thread/{1}.json"
 
 def _get_boards():
     '''Returns a list of boards as their abbrevations'''
-    board_json = json.loads(urlopen(boards_url).read())
+    board_json = json.loads(urlopen(boards_url).read().decode('utf-8'))
 
     boards = []
     for entry in board_json['boards']:
@@ -25,7 +31,8 @@ def _get_threads(boards):
     threads = []
 
     for board in boards:
-        threads_json = json.loads(urlopen(threads_url.format(board)).read())
+        threads_json = json.loads(
+            urlopen(threads_url.format(board)).read().decode('utf-8'))
         for page in threads_json:
             for thread in page['threads']:
                 threads.append((board, thread['no']))
@@ -40,7 +47,7 @@ def _get_posts(board, thread):
 
     try:
         posts_json = json.loads(
-            urlopen(posts_url.format(board, thread)).read())
+            urlopen(posts_url.format(board, thread)).read().decode('utf-8'))
     except HTTPError:
         return []
 
@@ -69,7 +76,7 @@ def fetch_posts():
     print(
         "Successfully fetched {0} posts. Saving to file...".format(len(posts)))
 
-    with open("raw_posts.txt", "w") as f:
+    with open("raw_posts.txt", "w", encoding='utf-8') as f:
         for post in posts:
             f.write(post + '\n')
 
