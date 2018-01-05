@@ -3,7 +3,7 @@ import random
 import sys
 
 import numpy as np
-from keras.layers import LSTM, Activation, Dense, Dropout
+from keras.layers import LSTM, Activation, Dense, Dropout, CuDNNLSTM
 from keras.models import Sequential, load_model
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard
@@ -18,14 +18,15 @@ data = DataSet(text)
 len_section = 50
 batch_size = 64
 
-print("Build model...")
 if (os.path.exists(SAVE_PATH)):
+    print("Loadinging existing model...")
     model = load_model(SAVE_PATH)
 else:
+    print("Build model...")
     model = Sequential()
-    model.add(LSTM(1024, return_sequences=True, input_shape=(len_section, data.char_size)))
-    model.add(Dropout(0.5))
-    model.add(LSTM(512))
+    model.add(CuDNNLSTM(1024, return_sequences=True, input_shape=(len_section, data.char_size)))
+    model.add(Dropout(0.3))
+    model.add(CuDNNLSTM(512))
     model.add(Dense(data.char_size))
     model.add(Activation('softmax'))
 
@@ -40,8 +41,8 @@ def sample(preds, div):
     probas = np.random.multinomial(1, preds, 1)
     return np.argmax(probas)
 
-tbCallBack = TensorBoard(write_images=True)
-tbCallBack.set_model(model)
+# tbCallBack = TensorBoard(write_images=True)
+# tbCallBack.set_model(model)
 
 for iteration in range(1, 70000):
     if iteration % 100 == 0:
